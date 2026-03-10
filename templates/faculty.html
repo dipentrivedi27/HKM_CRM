@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Members - Harikrishna Multimedia Institute</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/faculty.css' %}">
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="toggle-btn" id="toggleBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
+            <div class="logo">
+                <img src="/static/images/hkmi.jpeg" alt="Institute Logo" class="logo-img">
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="has-submenu">
+                    <a href="javascript:void(0);" id="studentMenu">
+                        <i class="fas fa-users"></i> <span>Students</span>
+                        <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+                    </a>
+                    <ul class="submenu" id="studentSubmenu">
+                        <li><a href="{% url 'studentform' %}">➕ <span>Add Student</span></a></li>
+                        <li><a href="{% url 'students_list' %}">📋 <span>Students List</span></a></li>
+                        <li><a href="{% url 'hold_page' %}">⏸️ <span>Hold Students</span></a></li>
+                    </ul>
+                </li>
+                <li><a href="{% url 'faculty' %}" class="active"><i class="fas fa-chalkboard-teacher"></i>
+                        <span>Faculty</span></a></li>
+                <li><a href="{% url 'courses' %}"><i class="fas fa-book"></i> <span>Courses</span></a></li>
+                <li><a href="{% url 'fees' %}"><i class="fas fa-rupee-sign"></i> <span>Fees</span></a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+
+            <div class="user-profile">
+                <div class="user-avatar">BS</div>
+                <div class="user-info">
+                    <h4>{{ request.user.username|title }}</h4>
+                    <p>{% if is_admin %}Admin{% else %}User{% endif %}</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <button id="desktopToggleBtn" class="theme-toggle" title="Toggle Sidebar">
+                        <i class="fas fa-outdent" id="toggleIcon"></i>
+                    </button>
+                    <div class="greeting-card">
+                        <div class="greeting-text" id="greetingText"></div>
+                        <span class="wave-hand">👋</span>
+                    </div>
+                </div>
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </div>
+            </div>
+
+            <header>
+                <h1>Faculty Members</h1>
+            </header>
+
+            {% if is_admin %}
+            <!-- Add Faculty Button (Admin Only) -->
+            <div class="add-faculty-section">
+                <h2>Add a New Faculty Member</h2>
+                <button class="btn-large" id="openModal">
+                    <i class="fas fa-user-plus"></i>
+                    Register New Faculty
+                </button>
+            </div>
+            {% endif %}
+
+            <!-- Faculty List -->
+            <div class="faculty-grid" id="facultyGrid">
+                <!-- Cards loaded from localStorage -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="facultyModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Faculty Registration Form</h2>
+            <form id="facultyForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="designation">Designation *</label>
+                        <select id="designation" required>
+                            <option value="">Select Designation</option>
+                            <option>Director</option>
+                            <option>HOD</option>
+                            <option>Senior Faculty</option>
+                            <option>Faculty</option>
+                            <option>Visiting Faculty</option>
+                            <option>Guest Lecturer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department *</label>
+                        <select id="department" required>
+                            <option value="">Select Department</option>
+                            <option>Graphic Design</option>
+                            <option>Video Editing & VFX</option>
+                            <option>Animation (2D/3D)</option>
+                            <option>Web Design & Development</option>
+                            <option>UI/UX Design</option>
+                            <option>Digital Marketing</option>
+                            <option>Multimedia & Photography</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="experience">Years of Experience</label>
+                        <input type="number" id="experience" min="0" placeholder="e.g. 10">
+                    </div>
+                    <div class="form-group full">
+                        <label for="bio">Short Bio / Qualifications</label>
+                        <textarea id="bio" rows="4" placeholder="Brief introduction..."></textarea>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Faculty
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const ROLE_NAME = "{% if is_admin %}Admin{% else %}User{% endif %}";
+        const IS_ADMIN = {% if is_admin %}true{% else %} false{% endif %};
+        const CSRF_TOKEN = "{{ csrf_token }}";
+    </script>
+    <script src="{% static 'js/faculty.js' %}"></script>
+
+</body>
+
+</html>

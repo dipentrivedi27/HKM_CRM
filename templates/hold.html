@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hold Students - Harikrushna Multimedia Institute</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/hold.css' %}">
+</head>
+
+<body>
+
+    {% if messages %}
+    <div class="flash-container">
+        {% for message in messages %}
+        <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="dashboard">
+        <!-- Toggle Button (Mobile) -->
+        <button class="toggle-btn" id="toggleBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
+            <div class="logo">
+                <img src="/static/images/hkmi.jpeg" alt="HKMI Logo" class="logo-img">
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="has-submenu">
+                    <a id="studentMenu" href="javascript:void(0)">
+                        <i class="fas fa-users"></i> <span>Students</span>
+                        <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+                    </a>
+                    <ul class="submenu" id="studentSubmenu">
+                        <li><a href="{% url 'studentform' %}">➕ <span>Add Student</span></a></li>
+                        <li><a href="{% url 'students_list' %}">📋 <span>Students List</span></a></li>
+                        <li><a href="{% url 'hold_page' %}" class="active">⏸️ <span>Hold Students</span></a></li>
+                    </ul>
+                </li>
+                <li><a href="{% url 'faculty' %}"><i class="fas fa-chalkboard-teacher"></i> <span>Faculty</span></a>
+                </li>
+                <li><a href="{% url 'courses' %}"><i class="fas fa-book"></i> <span>Courses</span></a></li>
+                <li><a href="{% url 'fees' %}"><i class="fas fa-rupee-sign"></i> <span>Fees</span></a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+
+            <div class="user-profile">
+                <div class="user-avatar">BS</div>
+                <div class="user-info">
+                    <h4>{{ request.user.username|title }}</h4>
+                    <p>{% if is_admin %}Admin{% else %}User{% endif %}</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <button id="desktopToggleBtn" class="theme-toggle" title="Toggle Sidebar">
+                        <i class="fas fa-outdent" id="toggleIcon"></i>
+                    </button>
+                    <div class="greeting-card">
+                        <div class="greeting-text" id="greetingText"></div>
+                        <span class="wave-hand">👋</span>
+                    </div>
+                </div>
+                <div class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h1 class="page-title">⏳ Students on Hold</h1>
+                <p class="page-subtitle">Manage and resume student records currently in suspension</p>
+            </div>
+
+            <div class="glass-card">
+                <div class="table-controls">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="tableSearch" class="search-input"
+                            placeholder="Search by student name...">
+                    </div>
+                </div>
+
+                {% if hold_list %}
+                <div class="table-responsive">
+                    <table class="premium-table" id="holdTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Hold Duration</th>
+                                <th>Hold Date</th>
+                                <th>Paid</th>
+                                <th>Pending</th>
+                                <th style="text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in hold_list %}
+                            <tr>
+                                <td class="td-number">{{ forloop.counter }}</td>
+                                <td class="td-name">
+                                    <div class="student-info-cell">
+                                        <div class="avatar-sm">{{ student.name|slice:":1" }}</div>
+                                        <span>{{ student.name }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="badge duration-badge">{{ student.duration }}</span></td>
+                                <td class="td-date">{{ student.date|date:"d-m-Y" }}</td>
+                                <td class="td-money">₹{{ student.paid_fees|default:"0" }}</td>
+                                <td class="td-money pending">₹{{ student.pending_fees|default:"0" }}</td>
+                                <td style="text-align: center;">
+                                    <form action="{% url 'remove_hold' student.id %}" method="post" style="margin:0;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="undo-btn">
+                                            <i class="fas fa-undo"></i> Undo Hold
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-pause-circle"></i></div>
+                    <p>No students are currently on hold.</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const ROLE_NAME = "{% if is_admin %}Admin{% else %}User{% endif %}";
+    </script>
+    <script src="{% static 'js/hold.js' %}"></script>
+</body>
+
+</html>

@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fees</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script>
+        const ROLE_NAME = "{% if is_admin %}Admin{% else %}User{% endif %}";
+        const IS_ADMIN = {% if is_admin %}true{% else %} false{% endif %};
+    </script>
+
+
+    <link rel="stylesheet" href="{% static 'css/fees.css' %}">
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="toggle-btn" id="toggleBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="/static/images/hkmi.jpeg" alt="Institute Logo" class="logo-img">
+            </div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="has-submenu">
+                    <a href="javascript:void(0);" id="studentMenu">
+                        <i class="fas fa-users"></i> <span>Students</span>
+                        <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+                    </a>
+                    <ul class="submenu" id="studentSubmenu">
+                        <li><a href="{% url 'studentform' %}">➕ <span>Add Student</span></a></li>
+                        <li><a href="{% url 'students_list' %}">📋 <span>Students List</span></a></li>
+                        <li><a href="{% url 'hold_page' %}">⏸️ <span>Hold Students</span></a></li>
+                    </ul>
+                </li>
+                <li><a href="{% url 'faculty' %}"><i class="fas fa-chalkboard-teacher"></i> <span>Faculty</span></a>
+                </li>
+                <li><a href="{% url 'courses' %}"><i class="fas fa-book"></i> <span>Courses</span></a></li>
+                <li><a href="{% url 'fees' %}" class="active"><i class="fas fa-rupee-sign"></i> <span>Fees</span></a>
+                </li>
+                <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li>
+                    <a href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="user-profile">
+                <div class="user-avatar">BS</div>
+                <div class="user-info">
+                    <h4>{{ request.user.username|title }}</h4>
+                    <p>{% if is_admin %}Admin{% else %}User{% endif %}</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <button id="desktopToggleBtn" class="theme-toggle" title="Toggle Sidebar">
+                        <i class="fas fa-outdent" id="toggleIcon"></i>
+                    </button>
+                    <div class="greeting-card">
+                        <div class="greeting-text" id="greetingText"></div>
+                        <span class="wave-hand">👋</span>
+                    </div>
+                </div>
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 20px;">
+                <i class="/"></i> Fees Management
+            </h2>
+
+            <!-- NEW: Only 3 Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3 id="totalStudents">0</h3>
+                    <p>Total Students</p>
+                </div>
+                <div class="summary-card" style="color: var(--success);">
+                    <h3 id="totalPaid">₹ 0</h3>
+                    <p>Total Fees Collected</p>
+                </div>
+                <div class="summary-card" style="color: var(--warning);">
+                    <h3 id="totalPending">₹ 0</h3>
+                    <p>Total Pending Fees</p>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="Search by Name, UID, Mobile or Course...">
+                <button class="hc-btn hc-warning" onclick="sortByPendingFees()">
+                    🔥 High Pending
+                </button>
+
+                <button class="hc-btn hc-reset" onclick="resetTable()">
+                    🔄 Reset
+                </button>
+                <select id="yearFilter" onchange="filterByYear()" class="year-dropdown">
+                    {% for y in years %}
+                    <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>
+                        {{ y }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+
+            </div>
+
+
+
+
+            <!-- Original Fees Table -->
+            <div style="background:var(--card-bg); border:1px solid var(--border);
+				border-radius:18px; box-shadow:var(--shadow); padding:25px; overflow-x:auto;">
+
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; text-align:center;">
+
+                        <thead>
+                            <tr style="background:rgba(99,102,241,0.15);">
+                                <th style="padding:14px;">Photo</th>
+                                <th style="padding:14px;">UID</th>
+                                <th style="padding:14px;">Name</th>
+                                <th style="padding:14px;">Contact</th>
+                                <th style="padding:14px;">Course</th>
+                                <th style="padding:14px;">Admission Date</th>
+                                <th style="padding:14px;">Total</th>
+                                <th style="padding:14px;">Paid</th>
+                                <th style="padding:14px;">Pending</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tableBody">
+                            {% for s in students %}
+                            <tr class="student-row" style="border-bottom:1px solid var(--border);">
+                                <td style="padding:12px;">
+                                    {% if s.photo %}
+                                    <img src="{{ s.photo.url }}"
+                                        style="width:55px;height:55px;border-radius:50%;object-fit:cover;">
+                                    {% else %}
+                                    <span style="color:#999;">—</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding:12px;font-weight:600;">UID-{{ s.student_id }}</td>
+                                <td style="padding:12px;font-weight:600;">{{ s.name }}</td>
+                                <td style="padding:12px;">{{ s.mobile }}</td>
+                                <td style="padding:12px;">{{ s.career }}</td>
+                                <td class="adm-date" data-date="{{ s.date|date:'Y-m-d' }}" style="padding:12px;">{{ s.date|date:'d-m-Y' }}</td>
+
+
+                                <!-- Total = Paid + Pending -->
+                                <!-- Total = Paid + Pending -->
+                                <td style="padding:12px;font-weight:600;">
+                                    ₹ {{ s.total_fees }}
+                                </td>
+
+
+                                <!-- Paid -->
+                                {% if is_admin %}
+                                <td class="paid-cell" style="padding:12px;color:#16a34a;font-weight:600;cursor:pointer;"
+                                    onclick="togglePayments(this, '{{ s.id }}')">
+                                    ₹ {{ s.paid_fees|default:0 }}
+                                </td>
+                                {% else %}
+                                <td class="paid-cell"
+                                    style="padding:12px;color:#16a34a;font-weight:600;cursor:not-allowed;"
+                                    title="Restricted Access">
+                                    ₹ {{ s.paid_fees|default:0 }}
+                                </td>
+                                {% endif %}
+
+                                <!-- Pending -->
+                                <td style="padding:12px;color:#dc2626;font-weight:600;">₹ {{ s.pending_fees|default:0 }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" style="padding:20px;">No students found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+
+                        <script src="{% static 'js/fees.js' %}"></script>
+
+
+</body>
+
+</html>

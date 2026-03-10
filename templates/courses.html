@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OUR COURSES - Harikrushna Multimedia Institute</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/courses.css' %}">
+</head>
+
+<body>
+
+  <div class="dashboard">
+    <!-- Toggle Button (Mobile) -->
+    <button class="toggle-btn" id="toggleBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
+      <div class="logo">
+        <img src="/static/images/hkmi.jpeg" alt="Institute Logo" class="logo-img">
+      </div>
+
+      <ul class="sidebar-menu">
+        <li><a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+        <li class="has-submenu">
+          <a href="javascript:void(0);" id="studentMenu">
+            <i class="fas fa-users"></i> <span>Students</span>
+            <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+          </a>
+          <ul class="submenu" id="studentSubmenu">
+            <li><a href="{% url 'studentform' %}">➕ <span>Add Student</span></a></li>
+            <li><a href="{% url 'students_list' %}">📋 <span>Students List</span></a></li>
+            <li><a href="{% url 'hold_page' %}">⏸️ <span>Hold Students</span></a></li>
+          </ul>
+        </li>
+        <li><a href="{% url 'faculty' %}"><i class="fas fa-chalkboard-teacher"></i> <span>Faculty</span></a></li>
+        <li><a href="{% url 'courses' %}" class="active"><i class="fas fa-book"></i> <span>Courses</span></a></li>
+        <li><a href="{% url 'fees' %}"><i class="fas fa-rupee-sign"></i> <span>Fees</span></a></li>
+        <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+        <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+      </ul>
+
+      <div class="user-profile">
+        <div class="user-avatar">BS</div>
+        <div class="user-info">
+          <h4>{{ request.user.username|title }}</h4>
+          <p>{% if is_admin %}Admin{% else %}User{% endif %}</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="top-bar">
+        <div style="display: flex; align-items: center; gap: 20px;">
+          <button id="desktopToggleBtn" class="theme-toggle" title="Toggle Sidebar">
+            <i class="fas fa-outdent" id="toggleIcon"></i>
+          </button>
+          <div class="greeting-card">
+            <div class="greeting-text" id="greetingText"></div>
+            <span class="wave-hand">👋</span>
+          </div>
+        </div>
+        <div class="theme-toggle" id="themeToggle">
+          <i class="fas fa-sun" id="themeIcon"></i>
+        </div>
+      </div>
+
+      <h1>OUR COURSES</h1>
+
+      <div class="courses-grid">
+
+        <!-- Course Card 1 -->
+        <div class="course-card">
+          <div class="course-image">Graphics Design</div>
+          <div class="course-content">
+            <h2 class="course-title">Complete Your Graphics Design Journey with HKMI</h2>
+            <div class="course-info">
+              Graphic design is the art of creating visual content to communicate messages effectively. It uses
+              typography,
+              images, colors, and layouts to convey ideas and emotions in a visually appealing way. Graphic designers
+              create
+              visual content for branding, advertising, social media, and digital platforms.
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Card 2 -->
+        <div class="course-card">
+          <div class="course-image">2D Animation</div>
+          <div class="course-content">
+            <h2 class="course-title">2D Animation Full Course available at HKMI</h2>
+            <div class="course-info">
+              2D animation refers to the creation of moving images by displaying a sequence of individual frames in a
+              two
+              dimensional space. 2D animation is focused on flat, two-dimensional surfaces. It's a traditional form of
+              animation
+              that has been used in various mediums such as cartoons, films, video games, and advertisements.
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Card 3 -->
+        <div class="course-card">
+          <div class="course-image">Video Editing</div>
+          <div class="course-content">
+            <h2 class="course-title">Become Pro in Video Editing with HKMI</h2>
+            <div class="course-info">
+              Video editing is the art of arranging video footage, audio, and effects to create a captivating final
+              video. It includes
+              selecting and trimming clips, adding transitions, titles, visual effects, adjusting color and audio, and
+              rendering the
+              final output.
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Course Card 4 -->
+        <div class="course-card">
+          <div class="course-image">3D Animation </div>
+          <div class="course-content">
+            <h2 class="course-title">3D Animation with HKMI</h2>
+            <div class="course-info">
+              3D animation is the process of creating moving images in a three-dimensional (3D) environment, giving the
+              illusion
+              that these digital objects are moving through a 3D space. This is done by using computer software to
+              create and
+              manipulate digital objects, or by using specialized hardware such as motion capture.
+            </div>
+          </div>
+        </div>
+        <!-- Course Card 5 -->
+        <div class="course-card">
+          <div class="course-image">3D Architectural </div>
+          <div class="course-content">
+            <h2 class="course-title">3D Architectural Visualization Course at HKMI</h2>
+            <div class="course-info">
+              3D architectural visualization is the process of creating realistic or stylized visual representations of
+              buildings and
+              architectural designs using computer graphics software. It involves modeling, texturing, lighting, and
+              rendering to
+              produce high-quality images and animations for presentations, marketing materials, and design reviews.
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Card 6 -->
+        <div class="course-card">
+          <div class="course-image">UI/UX Design </div>
+          <div class="course-content">
+            <h2 class="course-title">Start UI/UX Designing Course with HKMI</h2>
+            <div class="course-info">
+              In digital design, user interface (UI) refers to the interactivity, look, and feel of a product screen,
+              while user
+              experience (UX) covers a users overall experience with the product or site
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Card 7 -->
+        <div class="course-card">
+          <div class="course-image">3D Jewellery Design </div>
+          <div class="course-content">
+            <h2 class="course-title">3D Jewellery Design Course at HKMI</h2>
+            <div class="course-info">
+              3d Jewellery Design Uses Computer Software To Craft And Visualize Jewelry In 3d, Offering More Creative
+              Freedom,
+              Quicker Prototyping, And Realistic Representation Compared To Traditional Methods. This Approach Is
+              Cost-Effective,
+              Customizable, And Enables Easy Collaboration While Reducing Material Waste.
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Card 8 -->
+        <div class="course-card">
+          <div class="course-image">Digital Marketing </div>
+          <div class="course-content">
+            <h2 class="course-title">Digital Marketing Course at HKMI</h2>
+            <div class="course-info">
+              Digital marketing uses internet and digital tech (social media, search engines, email, apps) to promote
+              products,
+              offering measurable results and direct customer engagement, unlike traditional marketing, by leveraging
+              tactics like
+              SEO, content, PPC, and data to connect with audiences where they spend time online </div>
+          </div>
+        </div>
+
+        <!-- Course Card 9 -->
+        <div class="course-card">
+          <div class="course-image">Visual Effect (VFX)</div>
+          <div class="course-content">
+            <h2 class="course-title">VFX Course at HKMI</h2>
+            <div class="course-info">
+              VFX means Visual Effects, referring to digitally created or manipulated imagery added to live-action
+              footage in
+              post-production to create environments, creatures, or events impossible or impractical to film in reality,
+              such as
+              fantastical worlds, explosions
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Card 10 -->
+        <div class="course-card">
+          <div class="course-image">C/C++/Java/Python</div>
+          <div class="course-content">
+            <h2 class="course-title">Programming Course at HKMI</h2>
+            <div class="course-info">
+              C is used for system and hardware-related programming., C++ supports object-oriented programming and high
+              performance., Java is platform independent and used for application development. Python is easy to learn
+              and
+              widely used in modern technologies.
+            </div>
+          </div>
+        </div>
+        <!-- Course Card 11-->
+        <div class="course-card">
+          <div class="course-image">Game Design</div>
+          <div class="course-content">
+            <h2 class="course-title">Game Design Course at HKMI</h2>
+            <div class="course-info">
+              Game design is the process of creating and designing the rules, mechanics, gameplay, and overall
+              experience of a
+              video game or any interactive entertainment product. It is a multidisciplinary field that combines
+              elements of art,
+              storytelling, psychology, programming, and more to craft engaging and enjoyable player experiences.
+            </div>
+          </div>
+        </div>
+        <!-- Course Card 12-->
+        <div class="course-card">
+          <div class="course-image">Android Development</div>
+          <div class="course-content">
+            <h2 class="course-title">Android Development Course at HKMI</h2>
+            <div class="course-info">
+              Android app development involves designing, building, testing, and maintaining applications for devices
+              running
+              the Android operating system. Developers use Java or Kotlin along with Android SDK tools to create
+              user-friendly,
+              secure, and high-performance mobile applications.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const ROLE_NAME = "{% if is_admin %}Admin{% else %}User{% endif %}";
+  </script>
+  <script src="{% static 'js/courses.js' %}"></script>
+
+</body>
+
+</html>

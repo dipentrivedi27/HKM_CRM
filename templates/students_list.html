@@ -1,0 +1,464 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students List - Harikrushna Multimedia Institute</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/students_list.css' %}">
+</head>
+
+<body>
+
+    {% if messages %}
+    <div class="flash-container">
+        {% for message in messages %}
+        <div class="flash-message">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="dashboard">
+
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <button class="toggle-btn" id="toggleBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <aside class="sidebar" id="sidebar">
+            <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
+            <div class="logo">
+                <img src="/static/images/hkmi.jpeg" alt="Institute Logo" class="logo-img">
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="has-submenu">
+                    <a href="javascript:void(0);" id="studentMenu">
+                        <i class="fas fa-users"></i> <span>Students</span>
+                        <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+                    </a>
+                    <ul class="submenu" id="studentSubmenu">
+                        <li><a href="{% url 'studentform' %}">➕ <span>Add Student</span></a></li>
+                        <li>
+                            {% if perms.crmapp.view_student %}
+                            <a href="{% url 'students_list' %}" class="active">📋 <span>Students List</span></a>
+                            {% else %}
+                            <a href="javascript:void(0)" class="disabled-link">📋<span>Students List</span></a>
+                            {% endif %}
+                        </li>
+                        <li><a href="{% url 'hold_page' %}">⏸️ <span>Hold Students</span></a></li>
+                    </ul>
+                </li>
+                <li><a href="{% url 'faculty' %}"><i class="fas fa-chalkboard-teacher"></i> <span>Faculty</span></a>
+                </li>
+                <li><a href="{% url 'courses' %}"><i class="fas fa-book"></i> <span>Courses</span></a></li>
+                <li><a href="{% url 'fees' %}"><i class="fas fa-rupee-sign"></i> <span>Fees</span></a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+
+            <div class="user-profile">
+                <div class="user-avatar">BS</div>
+                <div class="user-info">
+                    <h4>{{ request.user.username|title }}</h4>
+                    <p>{% if is_admin %}Admin{% else %}User{% endif %}</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <button id="desktopToggleBtn" class="theme-toggle" title="Toggle Sidebar">
+                        <i class="fas fa-outdent" id="toggleIcon"></i>
+                    </button>
+                    <div class="greeting-card">
+                        <div class="greeting-text" id="greetingText"></div>
+                        <span class="wave-hand">👋</span>
+                    </div>
+                </div>
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </div>
+            </div>
+
+            <h2 class="page-title"><i class="fa-solid fa-users-viewfinder"></i> Students Admited List</h2>
+
+            <div class="search-container" style="max-width: 1400px; margin: 0 auto 40px auto; text-align: center;">
+                <div style="position: relative; display: inline-block; width: 100%; max-width: 600px;">
+                    <input type="text" id="searchInput"
+                        placeholder="Search by Name, Mobile, Email, College, Field, Source..." autocomplete="off" style="
+                            width: 100%;
+                            padding: 14px 50px 14px 20px;
+                            font-size: 1rem;
+                            border: 1px solid var(--border);
+                            border-radius: 16px;
+                            background: var(--card-bg);
+                            color: var(--text-primary);
+                            box-shadow: var(--shadow);
+                            outline: none;
+                        " />
+                    <i class="fas fa-search" style="
+                        position: absolute;
+                        right: 18px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        color: var(--accent);
+                        font-size: 18px;
+                        pointer-events: none;
+                    "></i>
+                </div>
+
+                <p id="searchInfo" style="margin-top: 12px; color: var(--text-secondary); font-size: 0.95rem;"></p>
+            </div>
+
+            <div class="student-grid" id="studentGrid">
+                {% for s in students %}
+                <div class="card">
+                    <div class="card-details">
+                        <div
+                            style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:10px;">
+
+                            {% if s.photo %}
+                            <img src="{{ s.photo.url }}" alt="{{ s.name }}" class="student-photo"
+                                onclick="openPhoto('{{ s.photo.url }}', '{{ s.name }}')">
+                            {% else %}
+                            <div class="student-photo placeholder">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            {% endif %}
+
+                            <span class="student-id-badge">UID-{{ s.student_id }}</span>
+                        </div>
+
+                        <h3 class="text-title student-name">{{ s.name }}</h3>
+
+                        <div class="info-row">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <div>
+                                <span class="info-label">Qualification</span>
+                                <span class="student-qualification">{{ s.qualification }}</span> <span
+                                    class="field-pill">{{ s.field }}</span>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <i class="fa-solid fa-user-shield"></i>
+
+                            <div>
+                                <span class="info-label">Alt Mobile</span>
+                                <strong class="student-alt-mobile">{{ s.alt_mobile }}</strong>
+                            </div>
+                        </div>
+
+
+                        <div class="info-row">
+                            <i class="fa-solid fa-phone-flip"></i>
+                            <div>
+                                <span class="info-label">Contact</span>
+                                <strong class="student-mobile">{{ s.mobile }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <i class="fa-solid fa-envelope"></i>
+                            <div style="word-break: break-all;">
+                                <span class="info-label">Email Address</span>
+                                <span class="student-email">{{ s.email }}</span>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <i class="fa-solid fa-bullseye" style="color: #008bf8;"></i>
+                            <div>
+                                <span class="info-label">Career Goal</span>
+                                <strong>{{ s.career|default:"Not Specified" }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                            <div>
+                                <span class="info-label">Fees</span>
+                                <strong>
+                                    {% if s.fees %}
+                                    ₹ {{ s.fees }}
+                                    {% else %}
+                                    Not Defined
+                                    {% endif %}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="info-row" style="margin-top: auto; padding-top: 10px;">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <div style="font-size: 0.75rem; color: #999;">
+                                Admited on: {{ s.date }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-buttons">
+                        <button class="card-button btn-edit" onclick="openEdit(this)" data-id="{{ s.id }}"
+                            data-student_id="{{ s.student_id }}" data-date="{{ s.date|date:'Y-m-d' }}"
+                            data-name="{{ s.name }}" data-address="{{ s.address }}" data-email="{{ s.email }}"
+                            data-mobile="{{ s.mobile }}" data-alt_mobile="{{ s.alt_mobile }}"
+                            data-dob="{{ s.dob|date:'Y-m-d' }}" data-qualification="{{ s.qualification }}"
+                            data-college="{{ s.college }}" data-field="{{ s.field }}" data-guardian="{{ s.guardian }}"
+                            data-career="{{ s.career }}" data-source="{{ s.source }}" data-fees="{{ s.fees }}">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                        <button class="card-button btn-fees" onclick="openFees(this)" data-name="{{ s.name }}"
+                            data-student-id="{{ s.id }}">
+                            <i class="fa-solid fa-money-bill-wave"></i> Status
+                        </button>
+                        <button class="card-button btn-manage" onclick="openManage(this)" data-student-id="{{ s.id }}"
+                            data-name="{{ s.name }}">
+                            <i class="fa-solid fa-cogs"></i> Manage
+                        </button>
+                    </div>
+
+                    <!-- Hidden Delete Form for each student -->
+                    {% if is_admin %}
+                    <form id="deleteForm_{{ s.id }}" method="post" style="display:none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="student_id" value="{{ s.id }}">
+                        <input type="hidden" name="action" value="delete">
+                    </form>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="fa-solid fa-folder-open fa-3x"
+                        style="margin-bottom:20px; color:var(--text-secondary);"></i>
+                    <p>No student records found.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- ===== SIMPLIFIED FEES MODAL (ONLY NAME + PAYMENT FORM) ===== -->
+            <div id="feesModal" style="display:none; position:fixed; top:0; left:0;
+                 width:100%; height:100%; background:rgba(0,0,0,0.6);
+                 z-index:3000; align-items:center; justify-content:center;">
+
+                <div style="background:var(--card-bg);
+                     padding:30px; border-radius:20px;
+                     width:90%; max-width:480px;
+                     border:1px solid var(--border); position:relative;">
+
+                    <h3 style="margin:0 0 20px 0;">
+                        <i class="fa-solid fa-money-bill-wave"></i> Record Payment
+                    </h3>
+
+                    <p style="font-size:1.1rem; margin-bottom:25px;">
+                        <strong>Student:</strong>
+                        <span id="f_name" style="color:var(--accent); font-weight:600;"></span>
+                    </p>
+
+                    <form method="POST" action="{% url 'students_list' %}">
+                        {% csrf_token %}
+
+                        <input type="hidden" name="action" value="payment">
+                        <input type="hidden" name="student_id" id="f_student_id">
+
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block; margin-bottom:8px; font-weight:600;">Paid Amount</label>
+                            <input type="number" name="amount" required placeholder="Enter amount paid today" min="1"
+                                step="1"
+                                style="width:100%; padding:12px; border-radius:10px; font-size:1rem; border:1px solid var(--border);">
+                        </div>
+
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block; margin-bottom:8px; font-weight:600;">Payment Date</label>
+                            <input type="date" name="payment_date" required
+                                style="width:100%; padding:12px; border-radius:10px; font-size:1rem; border:1px solid var(--border);">
+                        </div>
+
+                        <div style="margin-bottom:25px;">
+                            <label style="display:block; margin-bottom:8px; font-weight:600;">Payment Method</label>
+                            <select name="payment_method" required
+                                style="width:100%; padding:12px; border-radius:10px; font-size:1rem; border:1px solid var(--border); background: var(--card-bg); color: var(--text-primary);">
+                                <option value="Cash">Cash</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Check">Check</option>
+                            </select>
+                        </div>
+
+                        <div style="display:flex; gap:12px; justify-content:flex-end;">
+                            <button type="button" onclick="closeFees()" class="card-button btn-delete"
+                                style="padding:12px 24px;">
+                                Cancel
+                            </button>
+                            <a id="modalReceiptLink" href="#" target="_blank" class="card-button btn-hold"
+                                style="padding:12px 24px; text-decoration:none;">
+                                <i class="fa-solid fa-print"></i> Receipt
+                            </a>
+                            <button type="submit" class="card-button btn-fees" style="padding:12px 28px;">
+                                <i class="fa-solid fa-save"></i> Save Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Modal -->
+            <div id="editModal">
+                <div class="modal-content">
+                    <h3
+                        style="margin-top:0; color:var(--text-primary); border-bottom: 2px solid var(--border); padding-bottom:10px;">
+                        <i class="fa-solid fa-user-pen"></i> Update Student Info
+                    </h3>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="student_id" id="e_id">
+
+                        <div class="modal-grid">
+                            <div><label>Enquiry Date</label><input type="date" name="date" id="e_date"></div>
+                            <div><label>Student UID</label><input type="text" name="student_uid" id="e_student_uid">
+                            </div>
+                            <div><label>Student Name</label><input type="text" name="name" id="e_name"></div>
+                            <div class="full-width"><label>Residential Address</label><input type="text" name="address"
+                                    id="e_address"></div>
+                            <div><label>Email ID</label><input type="email" name="email" id="e_email"></div>
+                            <div><label>Mobile Number</label><input type="text" name="mobile" id="e_mobile"></div>
+                            <div><label>Alternate Mobile Number</label><input type="text" name="alt_mobile"
+                                    id="e_alt_mobile"></div>
+                            <div><label>Date of Birth</label><input type="date" name="dob" id="e_dob"></div>
+                            <div>
+                                <label>Student Photo</label>
+                                <input type="file" name="photo" accept="image/*">
+                            </div>
+                            <div><label>Qualification</label><input type="text" name="qualification"
+                                    id="e_qualification"></div>
+                            <div><label>College Name</label><input type="text" name="college" id="e_college"></div>
+                            <div><label>Field of Study</label><input type="text" name="field" id="e_field"></div>
+                            <div><label>Guardian Name</label><input type="text" name="guardian" id="e_guardian"></div>
+                            <div><label>Career Goal</label><input type="text" name="career" id="e_career"></div>
+                            <div>
+                                <label>Fees</label>
+                                <input type="number" name="fees" id="e_fees">
+                            </div>
+                            <div><label>Lead Source</label><input type="text" name="source" id="e_source"></div>
+                        </div>
+
+                        <div style="display: flex; gap: 15px; margin-top: 20px;">
+                            <button type="submit" class="card-button btn-edit" style="flex: 2;">Save Changes</button>
+                            <button type="button" class="card-button btn-delete" style="flex: 1;"
+                                onclick="closeEdit()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- NEW: Manage Modal -->
+            <div id="manageModal">
+                <div class="modal-content">
+                    <h3
+                        style="margin-top:0; color:var(--text-primary); border-bottom: 2px solid var(--border); padding-bottom:10px;">
+                        <i class="fa-solid fa-cogs"></i> Manage Student: <span id="m_name"></span>
+                    </h3>
+
+                    <div id="manageOptions" style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        {% if is_admin %}
+                        <button class="card-button btn-delete" style="flex: 1;" onclick="confirmDelete()">
+                            <i class="fa-solid fa-trash"></i> Delete Data
+                        </button>
+                        {% else %}
+                        <button class="card-button btn-delete" style="flex: 1; opacity:0.5; cursor:not-allowed;"
+                            title="Permission Required">
+                            <i class="fa-solid fa-lock"></i> Delete Locked
+                        </button>
+                        {% endif %}
+                        <button class="card-button btn-hold" style="flex: 1;" onclick="showHoldForm()">
+                            <i class="fa-solid fa-pause"></i> Hold Student
+                        </button>
+                    </div>
+
+                    <div id="holdForm" style="display:none;">
+                        <form method="POST" action="{% url 'students_list' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="hold">
+                            <input type="hidden" name="student_id" id="m_student_id">
+
+                            <div style="margin-bottom:20px;">
+                                <label style="display:block; margin-bottom:8px; font-weight:600;">Hold Duration (in
+                                    days)</label>
+                                <input type="text" name="hold_duration" required min="1"
+                                    placeholder="Enter hold duration"
+                                    style="width:100%; padding:12px; border-radius:10px; font-size:1rem; border:1px solid var(--border);">
+                            </div>
+
+                            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                                <!-- <button type="button" onclick="closeManage()" 
+                                        class="card-button btn-delete"
+                                        style="padding:12px 24px;">
+                                    Cancel
+                                </button> -->
+                                <button type="submit" class="card-button btn-confirm" style="padding:12px 28px;">
+                                    <i class="fa-solid fa-check"></i> Confirm Hold
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 15px;">
+                        <button type="button" class="card-button btn-delete" style="padding:10px 20px;"
+                            onclick="closeManage()">Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHOTO ZOOM MODAL -->
+            <div id="photoModal" style="
+                display:none;
+                position:fixed;
+                top:0; left:0;
+                width:100%; height:100%;
+                background:rgba(0,0,0,0.8);
+                z-index:2000;
+                align-items:center;
+                justify-content:center;
+            ">
+                <div style="position:relative;">
+                    <img id="zoomPhoto" src="" style="
+                        max-width:90vw;
+                        max-height:90vh;
+                        border-radius:20px;
+                        box-shadow:0 20px 50px rgba(0,0,0,0.5);
+                    ">
+                    <button onclick="closePhoto()" style="
+                        position:absolute;
+                        top:-15px;
+                        right:-15px;
+                        background:#e74c3c;
+                        color:white;
+                        border:none;
+                        width:40px;
+                        height:40px;
+                        border-radius:50%;
+                        font-size:20px;
+                        cursor:pointer;
+                    ">
+                        ✕
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const ROLE_NAME = "{% if is_admin %}Admin{% else %}User{% endif %}";
+    </script>
+    <script src="{% static 'js/students_list.js' %}"></script>
+</body>
+
+</html>

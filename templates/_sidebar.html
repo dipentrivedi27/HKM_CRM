@@ -1,0 +1,59 @@
+{% comment %} Sidebar and sidebar logic for reuse {% endcomment %}
+<aside class="sidebar" id="sidebar">
+    <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
+    <div class="logo">
+        <img src="/static/images/hkmi.jpeg" alt="Institute Logo" class="logo-img">
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+        <li class="has-submenu">
+            <a href="javascript:void(0);" id="studentMenu">
+                <i class="fas fa-users"></i> <span>Students</span>
+                <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+            </a>
+            <ul class="submenu" id="studentSubmenu">
+                <li><a href="{% url 'studentform' %}">➕ <span>Add Student</span></a></li>
+                <li><a href="{% url 'students_list' %}">📋 <span>Students List</span></a></li>
+                <li><a href="{% url 'hold_page' %}">⏸️ <span>Hold Students</span></a></li>
+            </ul>
+        </li>
+        <li><a href="{% url 'faculty' %}"><i class="fas fa-chalkboard-teacher"></i> <span>Faculty</span></a></li>
+        <li><a href="{% url 'courses' %}"><i class="fas fa-book"></i> <span>Courses</span></a></li>
+        <li><a href="{% url 'fees' %}"><i class="fas fa-rupee-sign"></i> <span>Fees</span></a></li>
+        <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+        <li>
+            <a href="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+            </a>
+        </li>
+    </ul>
+    <div class="user-profile">
+        <div class="user-avatar">BS</div>
+        <div class="user-info">
+            <h4>{{ request.user.username|title }}</h4>
+            <p>{% if is_admin %}Admin{% else %}User{% endif %}</p>
+        </div>
+    </div>
+</aside>
+<script>
+// Sidebar and submenu logic for reuse
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const toggleBtn = document.getElementById('toggleBtn');
+const closeSidebar = document.getElementById('closeSidebar');
+const studentMenu = document.getElementById('studentMenu');
+const studentSubmenu = document.getElementById('studentSubmenu');
+
+function toggleSidebar() {
+    sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active');
+}
+if (toggleBtn) toggleBtn.addEventListener('click', e => { e.stopPropagation(); toggleSidebar(); });
+if (closeSidebar) closeSidebar.addEventListener('click', toggleSidebar);
+if (overlay) overlay.addEventListener('click', toggleSidebar);
+if (studentMenu && studentSubmenu) {
+    studentMenu.addEventListener('click', () => {
+        studentSubmenu.style.display = studentSubmenu.style.display === 'block' ? 'none' : 'block';
+    });
+}
+</script>

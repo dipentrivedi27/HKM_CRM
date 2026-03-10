@@ -1,0 +1,303 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Enquiry Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/studentform.css' %}">
+</head>
+
+<body>
+    {% if messages %}
+    <div class="flash-container">
+        {% for message in messages %}
+        <div class="flash-message success">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="dashboard">
+        <!-- Toggle Button (Mobile) -->
+        <button class="toggle-btn" id="toggleBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
+            <div class="logo">
+                <img src="/static/images/hkmi.jpeg" alt="Institute Logo" class="logo-img">
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                </li>
+                <li class="active has-submenu">
+                    <a href="javascript:void(0);" id="studentMenu">
+                        <i class="fas fa-users"></i> <span>Students</span>
+                        <i class="fas fa-chevron-down" style="margin-left:auto;"></i>
+                    </a>
+                    <ul class="submenu" id="studentSubmenu" style="display:block;">
+                        <li class="active"><a href="{% url 'studentform' %}" class="active">➕ <span>Add
+                                    Student</span></a></li>
+                        <li><a href="{% url 'students_list' %}">📋 <span>Students List</span></a></li>
+                        <li><a href="{% url 'hold_page' %}">⏸️ <span>Hold Students</span></a></li>
+                    </ul>
+                </li>
+                <li><a href="{% url 'faculty' %}"><i class="fas fa-chalkboard-teacher"></i> <span>Faculty</span></a>
+                </li>
+                <li><a href="{% url 'courses' %}"><i class="fas fa-book"></i> <span>Courses</span></a></li>
+                <li><a href="{% url 'fees' %}"><i class="fas fa-rupee-sign"></i> <span>Fees</span></a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li>
+                    <a href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="user-profile">
+                <div class="user-avatar">BS</div>
+                <div class="user-info">
+                    <h4>{{ request.user.username|title }}</h4>
+                    <p>{% if is_admin %}Admin{% else %}User{% endif %}</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <button id="desktopToggleBtn" class="theme-toggle" title="Toggle Sidebar">
+                        <i class="fas fa-outdent" id="toggleIcon"></i>
+                    </button>
+                    <div class="greeting-card">
+                        <div class="greeting-text" id="greetingText"></div>
+                        <span class="wave-hand">👋</span>
+                    </div>
+                </div>
+                <!-- Day/Night Mode Toggle -->
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </div>
+            </div>
+
+            <!-- Your Original Student Enquiry Form -->
+            <div class="enquiry-container">
+                <div class="enquiry-header">
+                    <img src="/static/images/hkmi.jpeg" alt="Harikrushna Multimedia Institute Logo">
+                    <h1>HARIKRUSHNA MULTIMEDIA INSTITUTE</h1>
+                    <p>AN ISO 9001:2015 CERTIFIED INSTITUTION</p>
+                </div>
+                <div class="enquiry-body">
+                    <form method="POST" action="{% url 'studentform' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="enquiry_id" value="{{ enquiry.id }}">
+                        <div class="section-title"><i class="fas fa-calendar-alt"></i> Basic Information</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input type="date" name="date">
+                            </div>
+                            <div class="form-group">
+                                <label>Student_ID</label>
+                                <input type="text" name="student_id" placeholder="Student ID">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" name="name" placeholder="Full Name" required
+                                    value="{{ enquiry.name }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" name="address" placeholder="Full Address" required>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>E-Mail</label>
+                                <input type="email" name="email" placeholder="example@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Mobile</label>
+                                <input type="text" name="mobile" placeholder="Mobile Number" required
+                                    value="{{ enquiry.mobile }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Alternate Mobile</label>
+                                <input type="text" name="alt_mobile" placeholder="Alternate Mobile Number" required>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Date Of Birth</label>
+                                    <input type="date" name="dob">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Student Photo</label>
+                                <input type="file" name="photo" accept="image/*">
+                                <small style="color: var(--text-secondary); font-size: 14px;">Upload a clear
+                                    passport-size photo (JPG, PNG, max 5MB recommended)</small>
+                            </div>
+                        </div>
+
+                        <div class="section-title"><i class="fas fa-graduation-cap"></i> Education Details</div>
+                        <div class="checkbox-section">
+                            <label style="font-weight:600; margin-bottom:15px; display:block;">Educational
+                                Qualification</label>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item"><input type="checkbox" name="qualification" value="PG">
+                                    P.G.</label>
+                                <label class="checkbox-item"><input type="checkbox" name="qualification"
+                                        value="Graduate"> Graduate</label>
+                                <label class="checkbox-item"><input type="checkbox" name="qualification" value="HSC">
+                                    H.S.C.</label>
+                                <label class="checkbox-item"><input type="checkbox" name="qualification" value="SSC">
+                                    S.S.C</label>
+                                <label class="checkbox-item"><input type="checkbox" name="qualification"
+                                        value="Diploma"> Diploma</label>
+                                <label class="checkbox-item"><input type="checkbox" name="qualification" value="Other">
+                                    Other</label>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>College/Institution</label>
+                                <input type="text" name="college">
+                            </div>
+                            <div class="form-group">
+                                <label>Field of Education</label>
+                                <input type="text" name="field"
+                                    placeholder="Science / Commerce / Arts / Mass Media / Others">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Father's / Husband / Guardian's Name</label>
+                                <input type="text" name="guardian">
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <i class="fas fa-briefcase"></i> Career Interests
+                        </div>
+
+<div class="checkbox-grid">
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="Graphics Design" {% if enquiry.course == "Graphics Design" %}checked{% endif %}>
+Graphics Design
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="Graphics Design/ Video Editing" {% if enquiry.course == "Graphics Design/ Video Editing" %}checked{% endif %}>
+Graphics Design / Video Editing
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="UI/UX Design" {% if enquiry.course == "UI/UX Design" %}checked{% endif %}>
+UI/UX Design
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="UI/UX Design/ Video Editing" {% if enquiry.course == "UI/UX Design/ Video Editing" %}checked{% endif %}>
+UI/UX Design / Video Editing
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="Web Design" {% if enquiry.course == "Web Design" %}checked{% endif %}>
+Web Design
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="Digital Marketing" {% if enquiry.course == "Digital Marketing" %}checked{% endif %}>
+Digital Marketing
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="PGA" {% if enquiry.course == "PGA" %}checked{% endif %}>
+PGA
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="PGA Advance" {% if enquiry.course == "PGA Advance" %}checked{% endif %}>
+PGA Advance
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="VFX" {% if enquiry.course == "VFX" %}checked{% endif %}>
+VFX
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="3D Architectural" {% if enquiry.course == "3D Architectural" %}checked{% endif %}>
+3D Architectural
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="Video Editing" {% if enquiry.course == "Video Editing" %}checked{% endif %}>
+Video Editing
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="Game Design" {% if enquiry.course == "Game Design" %}checked{% endif %}>
+Game Design
+</label>
+
+<label class="checkbox-item">
+<input type="checkbox" name="career" value="C/C++/CCC" {% if enquiry.course == "C/C++/CCC" %}checked{% endif %}>
+C/C++/CCC
+</label>
+
+</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Course Fees</label>
+                                <input type="number" name="fees" placeholder="Enter Course Fees" required>
+                            </div>
+                        </div>
+
+                        <div class="section-title"><i class="fas fa-question-circle"></i> How Did You Hear About Us?
+                        </div>
+                        <div class="checkbox-section">
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item"><input type="checkbox" name="source" value="Online Search">
+                                    Online Search</label>
+                                <label class="checkbox-item"><input type="checkbox" name="source" value="Social Media">
+                                    Social Media</label>
+                                <label class="checkbox-item"><input type="checkbox" name="source" value="Referral">
+                                    Referral</label>
+                                <label class="checkbox-item"><input type="checkbox" name="source" value="Advertisement">
+                                    Advertisement</label>
+                                <label class="checkbox-item"><input type="checkbox" id="other-checkbox" name="source"
+                                        value="Other"> Other</label>
+                            </div>
+                            <div class="other-group" id="other-group">
+                                <input type="text" name="other_source" placeholder="Please specify...">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Submit Enquiry <i class="fas fa-arrow-right"
+                                style="margin-left:10px;"></i></button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{% static 'js/studentform.js' %}"></script>
+</body>
+
+</html>
